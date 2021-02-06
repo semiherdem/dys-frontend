@@ -4,8 +4,14 @@ import Vue from 'vue'
 import App from './App'
 import { router } from './router/router'
 import store from './store/store'
+import Vuelidate from 'vuelidate'
+import VueToast from 'vue-toast-notification';
 
 Vue.config.productionTip = false
+
+Vue.use(Vuelidate);
+Vue.use(VueToast);
+
 
 /* eslint-disable no-new */
 new Vue({

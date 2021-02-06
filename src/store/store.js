@@ -7,7 +7,7 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state : {
-    api : "http://localhost:8081",
+    apiAddress : "http://localhost:8081",
     token :  "",
     showHeader : true
   },
@@ -35,19 +35,24 @@ const store = new Vuex.Store({
       }*/
       commit("setToken", token);
     },
-    login({commit, dispatch, state}, authData){
-      console.log(authData);
-      let authUrl = this.state.api + "/token";
-      return axios.post(authUrl , authData)
-        .then(function (response) {
-          commit("setToken" , response.data);
-          localStorage.setItem("token", response.data);
-        }).catch(()=>{
+    login({commit}, userData, ) {
+      localStorage.removeItem("token");
+      let authUrl = this.state.apiAddress + "/token";
 
+      return new Promise((resolve, reject) => {
+        axios.post(authUrl, userData)
+          .then((response) => {
+            commit("setToken" , response.data);
+            localStorage.setItem("token", response.data);
+            resolve(response)
+          })
+          .catch((error) => {
+            reject(error.response)
+          })
       })
     },
     logout({commit, dispatch, state}){
-      let authUrl = this.state.api + "/logout";
+      let authUrl = this.state.apiAddress + "/logout";
       return axios.post(authUrl)
         .then(response =>{
           commit("clearToken");
@@ -67,6 +72,9 @@ const store = new Vuex.Store({
     },
     getHeaderVisibility(state){
       return state.showHeader;
+    },
+    getApiAddress(state){
+      return state.apiAddress;
     }
 }
 })

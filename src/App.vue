@@ -27,7 +27,8 @@ export default {
     }
   },
   beforeUpdate() {
-    if(this.$route.path == "/auth/login" || this.$route.path == "/create-account"){
+    if(this.$route.path == "/auth/login"
+      || this.$route.path == "/create-account"){
       this.show = false;
     }
     else{

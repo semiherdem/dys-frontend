@@ -21,7 +21,7 @@ export const router  = new VueRouter({
           if(store.getters.isAuthenticated)
             next("/index");
           else
-            next("/");
+            next(true);
         }
     },
     {

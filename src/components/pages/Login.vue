@@ -4,21 +4,42 @@
       <fieldset>
         <legend>Please Sign In</legend>
         <div class="form-group">
-          <label for="inputEmail" class="col-lg-2 control-label">Email</label>
+          <label for="inputUsername" class="col-lg-2 control-label">Username</label>
           <div class="col-lg-10">
-            <input type="text" class="form-control" id="inputEmail" placeholder="Email" name="username" v-model="userData.username" />
+            <input type="text"
+                   class="form-control"
+                   id="inputUsername"
+                   placeholder="Username"
+                   name="username"
+                   v-model="userData.username"
+                   @input="$v.userData.username.$touch()"
+                   :class="{'is-invalid' : $v.userData.username.$error}"/>
+            <small v-if="!$v.userData.username.required" class="form-text text-danger">This field is required...</small>
+            <small v-if="!$v.userData.username.minLength" class="form-text text-danger">Your username must be at least {{ $v.userData.password.$params.minLength.min }} characters.</small>
+            <small v-if="!$v.userData.username.maxLength" class="form-text text-danger">Your username must contain a maximum of {{ $v.userData.password.$params.maxLength.max  }} characters.</small>
           </div>
+
         </div>
         <div class="form-group">
           <label for="inputPassword" class="col-lg-2 control-label">Password</label>
           <div class="col-lg-10">
-            <input type="password" class="form-control" id="inputPassword" placeholder="Password" name="password" v-model="userData.password" />
+            <input type="password"
+                   class="form-control"
+                   id="inputPassword"
+                   placeholder="Password"
+                   name="password"
+                   v-model="userData.password"
+                   @input="$v.userData.password.$touch()"
+                   :class="{'is-invalid' : $v.userData.password.$error}"/>
+            <small v-if="!$v.userData.password.required" class="form-text text-danger">This field is required...</small>
+            <small v-if="!$v.userData.password.minLength" class="form-text text-danger">Your password must be at least {{ $v.userData.password.$params.minLength.min }} characters.</small>
+            <small v-if="!$v.userData.password.maxLength" class="form-text text-danger">Your password must contain a maximum of {{ $v.userData.password.$params.maxLength.max  }} characters.</small>
           </div>
         </div>
         <div class="form-group">
           <div class="col-lg-offset-2 col-lg-10">
-            <button type="submit" class="btn btn-default">Sign in</button>
-            <router-link to="/ class="btn btn-default">Cancel</router-link>
+            <button type="submit" class="btn btn-default" :disabled="$v.$invalid">Sign in</button>
+            <router-link to="/" class="btn btn-default">Cancel</router-link>
           </div>
         </div>
         <div class="form-group">
@@ -32,8 +53,8 @@
 </template>
 
 <script>
-import axios from "axios"
-import store from "../../store/store";
+import {required, minLength, maxLength, email} from "vuelidate/lib/validators"
+import Vue from "vue";
 
 export default {
   data() {
@@ -47,29 +68,36 @@ export default {
   },
   methods : {
     onSubmit() {
-      this.$store.dispatch("login", this.userData)
-        .then(response =>{
-          this.$router.push("/index");
-        }).catch(function (error) {
-          alert("hata");
+      this.$store.dispatch('login', this.userData).then((p) => {
+        this.$router.push("/index");
       })
-    },
-    toggleNavbar () {
-      document.body.classList.toggle('nav-open')
-    },
-    closeMenu () {
-      document.body.classList.remove('nav-open')
-      document.body.classList.remove('off-canvas-sidebar')
-    },
-    mounted() {
-      // if back button is pressed
-      window.onpopstate = function(event) {
-        alert("deneme");
-        //this.$store.commit('setHeaderVisibility', true);
-      };
+      .catch((response) => {
+        Vue.$toast.open({
+          message: 'System error!',
+          type: 'error',
+          position: 'top-right'
+          // all of other options may go here
+        });
+      })
+    }
+  },
+  validations : {
+    userData : {
+      username : {
+        required,
+        minLength : minLength(4),
+        maxLength : maxLength(50)
+      },
+      password : {
+        required,
+        minLength : minLength(4),
+        maxLength : maxLength(20)
+      }
     }
   }
+
 }
+
 </script>
 
 <style>
@@ -94,3 +122,6 @@ body {
 }
 
 </style>
+
+
+
