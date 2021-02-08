@@ -13,7 +13,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li >
-              <router-link to="/">
+              <router-link to="/" v-if="this.$store.getters.isAuthenticated">
                 Home
               </router-link>
             </li>
