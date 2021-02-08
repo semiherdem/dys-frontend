@@ -2,8 +2,11 @@ import Vue from "vue"
 import Vuex from "vuex"
 import axios from "axios";
 import {router} from "../router/router";
+import VueToast from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
 
 Vue.use(Vuex)
+Vue.use(VueToast)
 
 const store = new Vuex.Store({
   state : {
@@ -60,7 +63,14 @@ const store = new Vuex.Store({
         }).catch( ()=>{
 
         })
-
+    },
+    showMessage({commit, dispatch, state}, err){
+      Vue.$toast.open({
+        message: err.msg,
+        type: err.type,
+        position: "top-right"
+        // all of other options may go here
+      });
     }
   },
   getters : {

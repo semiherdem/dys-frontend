@@ -4,19 +4,18 @@
       <fieldset>
         <legend>Please Sign In</legend>
         <div class="form-group">
-          <label for="inputUsername" class="col-lg-2 control-label">Username</label>
+          <label for="inputEmail" class="col-lg-2 control-label">Email</label>
           <div class="col-lg-10">
             <input type="text"
                    class="form-control"
-                   id="inputUsername"
-                   placeholder="Username"
-                   name="username"
-                   v-model="userData.username"
-                   @input="$v.userData.username.$touch()"
-                   :class="{'is-invalid' : $v.userData.username.$error}"/>
-            <small v-if="!$v.userData.username.required" class="form-text text-danger">This field is required...</small>
-            <small v-if="!$v.userData.username.minLength" class="form-text text-danger">Your username must be at least {{ $v.userData.password.$params.minLength.min }} characters.</small>
-            <small v-if="!$v.userData.username.maxLength" class="form-text text-danger">Your username must contain a maximum of {{ $v.userData.password.$params.maxLength.max  }} characters.</small>
+                   id="inputEmail"
+                   placeholder="E-mail"
+                   name="email"
+                   v-model="userData.email"
+                   @input="$v.userData.email.$touch()"
+                   :class="{'is-invalid' : $v.userData.email.$error}"/>
+            <small v-if="!$v.userData.email.required" class="form-text text-danger">This field is required...</small>
+            <small v-if="!$v.userData.email.email" class="form-text text-danger">Please enter a valid e-mail address</small>
           </div>
 
         </div>
@@ -60,7 +59,7 @@ export default {
   data() {
     return {
       userData : {
-        username : '',
+        email : '',
         password : '',
         token : ''
       }
@@ -68,25 +67,28 @@ export default {
   },
   methods : {
     onSubmit() {
-      this.$store.dispatch('login', this.userData).then((p) => {
-        this.$router.push("/index");
+      this.$store.dispatch("login", this.userData).then((response) => {
+        this.$store.dispatch("showMessage", {...response, msg : "User sign up successful!", type : "success"  });
+        setTimeout( () => this.$router.push("/index"), 2000);
       })
-      .catch((response) => {
-        Vue.$toast.open({
-          message: 'System error!',
-          type: 'error',
-          position: 'top-right'
-          // all of other options may go here
-        });
+      .catch((error) => {
+        console.log(error);
+        if(error.status === 401)
+          this.$store.dispatch("showMessage", {...error, msg : "Invalid Username and Password!", type : "error" });
+        else if(error.status === 500)
+            this.$store.dispatch("showMessage", {...error, msg : "Internal Server Error!", type : "error" });
+        else if(error.status === 400)
+          this.$store.dispatch("showMessage", {...error, msg : "Validation Error!", type : "error" });
+        else
+          this.$store.dispatch("showMessage", {...error, msg : "System Error!", type : "error" });
       })
     }
   },
   validations : {
     userData : {
-      username : {
+      email : {
         required,
-        minLength : minLength(4),
-        maxLength : maxLength(50)
+        email
       },
       password : {
         required,

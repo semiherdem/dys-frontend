@@ -134,38 +134,20 @@ export default {
       axios.post(this.$store.getters.getApiAddress + "/registerNewUserAccount" , this.userData)
         .then(response =>{
           if(response.data === 201){
-            Vue.$toast.open({
-              message: 'User sign up successful!',
-              type: 'success',
-              position: 'top-right'
-              // all of other options may go here
-            });
-
+            this.$store.dispatch("showMessage", {...response, msg : "User sign up successful!", type : "success"  });
             setTimeout( () => this.$router.push("/"), 2000);
           }
-          else if(response.data === 409){
-            Vue.$toast.open({
-              message: 'This username is taken. Please try another one!',
-              type: 'warning',
-              position: 'top-right'
-              // all of other options may go here
-            });
-          }
-          else{
-            Vue.$toast.open({
-              message: 'System error!',
-              type: 'error',
-              position: 'top-right'
-              // all of other options may go here
-            });
-          }
-        }).catch( ()=>{
-        Vue.$toast.open({
-          message: 'System error!',
-          type: 'error',
-          position: 'top-right'
-          // all of other options may go here
-        });
+          else if(response.data === 409)
+            this.$store.dispatch("showMessage", {...response, msg : "This username is taken. Please try another one!", type : "warning"  });
+          else
+            this.$store.dispatch("showMessage", {...response, msg : "System error!", type : "error"  });
+        }).catch( error  =>{
+          if(error.status === 500)
+            this.$store.dispatch("showMessage", {...error, msg : "Internal Server Error!", type : "error"  });
+          else if(error.status === 400)
+            this.$store.dispatch("showMessage", {...error, msg : "Validation Error!", type : "error" });
+          else
+            this.$store.dispatch("showMessage", {...error, msg : "System error!", type : "error"  });
       })
     }
   },
@@ -174,7 +156,7 @@ export default {
       username : {
         required,
         minLength : minLength(4),
-        maxLength : maxLength(20)
+        maxLength : maxLength(40)
       },
       firstName:  {
         required,
@@ -193,13 +175,13 @@ export default {
       password : {
         required,
         minLength : minLength(4),
-        maxLength : maxLength(20)
+        maxLength : maxLength(40)
       },
       confirmPassword : {
         required,
         minLength : minLength(4),
-        maxLength : maxLength(20),
-        sameAs : sameAs('password')
+        maxLength : maxLength(40),
+        sameAs : sameAs("password")
       }
     }
   }
